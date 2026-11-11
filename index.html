@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f0d" />
+  <title>TÀN TÍCH: VÙNG ĐẤT CHẾT</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230b0f0d'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='%23ffab45' stroke-width='4'/%3E%3Cpath d='M32 18v28M18 32h28' stroke='%23ffab45' stroke-width='4'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css?v=6" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" aria-label="Trò chơi sinh tồn"></canvas>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+
+    <!-- ================= START MENU ================= -->
+    <section id="menu" class="screen menu-screen">
+      <header class="menu-header">
+        <div class="brand">
+          <span class="brand-mark"><i></i><i></i><i></i></span>
+          <div>
+            <strong>TRẠM TÍN HIỆU 07</strong>
+            <small>VÙNG CÁCH LY · PHÂN KHU TÀN TÍCH</small>
+          </div>
+        </div>
+        <div class="menu-meta">
+          <span class="live-dot"></span> TÍN HIỆU YẾU
+          <span class="sep">/</span> NGÀY 1
+        </div>
+      </header>
+
+      <div class="menu-content">
+        <div class="menu-main">
+          <div class="eyebrow"><span></span> SINH TỒN TRONG ĐỔ NÁT <span></span></div>
+          <h1 class="game-title">
+            TÀN TÍCH
+            <em>VÙNG ĐẤT CHẾT</em>
+          </h1>
+          <p class="menu-lead">
+            Mười hai năm sau ngày sụp đổ, thành phố đã thành mồ chôn. Bạn là người sống sót cuối cùng
+            của Trạm 07. Hãy dựng lại căn cứ, chiêu mộ đồng đội và giữ vững vùng đất này trước
+            những đêm dị biến.
+          </p>
+          <div class="menu-actions">
+            <button id="btnStart" class="btn btn-primary">
+              <span class="btn-icon">▶</span>
+              <span>BẮT ĐẦU SINH TỒN</span>
+            </button>
+            <button id="btnGuide" class="btn btn-ghost">HƯỚNG DẪN</button>
+          </div>
+          <div class="feature-grid">
+            <div class="feature">
+              <span class="feature-icon">✦</span>
+              <strong>CHIẾN ĐẤU</strong>
+              <small>Cận chiến &amp; súng ống</small>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">⌖</span>
+              <strong>KHÁM PHÁ</strong>
+              <small>Thu thập trong đổ nát</small>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">▦</span>
+              <strong>XÂY DỰNG</strong>
+              <small>Tháp súng &amp; phòng tuyến</small>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">☾</span>
+              <strong>SINH TỒN</strong>
+              <small>Ngày đêm &amp; các đợt sóng</small>
+            </div>
+          </div>
+        </div>
+
+        <aside class="dossier">
+          <div class="dossier-top">
+            <span>HỒ SƠ SINH TỒN</span>
+            <span class="dossier-id">#VN-071</span>
+          </div>
+          <div class="dossier-portrait">
+            <svg viewBox="0 0 120 140" aria-hidden="true">
+              <path d="M25 140c0-30 12-45 35-45s35 15 35 45" fill="#1c2620"/>
+              <path d="M45 95c0-9 6-15 15-15s15 6 15 15v12H45z" fill="#b18257"/>
+              <ellipse cx="60" cy="67" rx="26" ry="30" fill="#c19364"/>
+              <path d="M34 61c-1-20 10-32 26-32s28 12 27 33c-3-7-8-11-13-13-7 5-19 6-27 3-3 4-6 8-7 12z" fill="#242b25"/>
+              <path d="M39 61c2 20 10 31 21 31s19-11 21-31c-6 6-12 9-21 9s-15-3-21-9z" fill="#b8875a"/>
+              <path d="M49 67h7v3h-7zm14 0h7v3h-7z" fill="#1c211d"/>
+              <path d="M54 81c4 3 9 3 13 0" stroke="#6d4932" stroke-width="2.5" fill="none"/>
+              <path d="M36 104l-9 36M84 104l9 36" stroke="#3b4a3d" stroke-width="9" stroke-linecap="round"/>
+              <path d="M60 98v42" stroke="#2b352e" stroke-width="13"/>
+              <path d="M38 58c3-17 12-25 22-25s19 8 22 25" stroke="#59664f" stroke-width="4" fill="none"/>
+              <circle cx="90" cy="88" r="4" fill="#ff9d3c"/>
+            </svg>
+            <div class="dossier-scan"></div>
+            <span class="dossier-tag">SỐNG SÓT</span>
+          </div>
+          <div class="dossier-stats">
+            <div><span>Thể lực</span><b>82%</b></div>
+            <div><span>Tinh thần</span><b>61%</b></div>
+            <div><span>Trang bị</span><b>Cấp 1</b></div>
+          </div>
+          <div class="dossier-note">
+            <span class="warn">!</span>
+            <p>Mặt trời đang lặn. Dị biến sẽ hoạt động mạnh hơn khi trời tối.</p>
+          </div>
+          <div class="dossier-objectives">
+            <h4>MỤC TIÊU ĐẦU TIÊN</h4>
+            <ul>
+              <li><span>01</span> Thu thập 80 phế liệu</li>
+              <li><span>02</span> Dựng 4 tường phòng thủ</li>
+              <li><span>03</span> Sống sót qua đêm đầu tiên</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="menu-footer">
+        <div class="controls-mini">
+          <span><kbd>WASD</kbd> DI CHUYỂN</span>
+          <span><kbd>CHUỘT</kbd> NGẮM BẮN</span>
+          <span><kbd>E</kbd> TƯƠNG TÁC</span>
+          <span><kbd>B</kbd> XÂY DỰNG</span>
+          <span><kbd>SPACE</kbd> LƯỚT</span>
+        </div>
+        <div class="version">BẢN DỰNG THỬ 1.0 · CHẾ ĐỘ SINH TỒN</div>
+      </footer>
+    </section>
+
+    <!-- ================= HUD ================= -->
+    <section id="hud" class="hidden">
+      <div class="hud-left">
+        <div class="vitals panel-cut">
+          <div class="vitals-head">
+            <div class="avatar">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M8 46c1-12 7-18 16-18s15 6 16 18" fill="#374334"/>
+                <ellipse cx="24" cy="19" rx="9.5" ry="11" fill="#c19364"/>
+                <path d="M14.5 17c0-8 4-12 10-12s10 5 9.5 12c-2-3-5-5-9.5-5s-8 2-10 5z" fill="#252d24"/>
+                <path d="M19 20h3v2h-3zm7 0h3v2h-3z" fill="#161a16"/>
+              </svg>
+              <span class="level-chip" id="levelChip">1</span>
+            </div>
+            <div class="vitals-bars">
+              <div class="bar-row">
+                <span class="bar-label">HP</span>
+                <div class="bar hp"><i id="hpFill"></i><b id="hpText">100 / 100</b></div>
+              </div>
+              <div class="bar-row">
+                <span class="bar-label">THỂ LỰC</span>
+                <div class="bar stamina"><i id="stamFill"></i></div>
+              </div>
+              <div class="bar-row">
+                <span class="bar-label">XP</span>
+                <div class="bar xp"><i id="xpFill"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="vitals-foot">
+            <span id="hpStatus">ỔN ĐỊNH</span>
+            <span class="xp-text" id="xpText">0 / 100 XP</span>
+          </div>
+        </div>
+
+        <div class="quest-tracker panel-cut">
+          <div class="tracker-head"><span class="pulse-dot"></span> NHIỆM VỤ <b id="questCount">0/3</b></div>
+          <div id="questList" class="quest-list"></div>
+        </div>
+      </div>
+
+      <div class="hud-top">
+        <div class="time-panel panel-cut">
+          <div class="time-icon" id="timeIcon">☀</div>
+          <div class="time-main">
+            <div class="time-row"><strong id="clockText">07:00</strong><span id="dayText">NGÀY 1</span></div>
+            <div class="time-sub"><span id="phaseText">BÌNH MINH</span><span class="sep">·</span><span id="threatText">AN TOÀN</span></div>
+          </div>
+          <div class="time-cycle"><i id="cycleFill"></i></div>
+        </div>
+        <div class="wave-panel hidden" id="wavePanel">
+          <div class="wave-top"><span>ĐỢT DỊ BIẾN</span><b id="waveNumber">1</b></div>
+          <div class="wave-bar"><i id="waveFill"></i></div>
+          <small id="waveInfo">CHUẨN BỊ PHÒNG THỦ</small>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="resources">
+          <div class="res" title="Phế liệu"><span class="res-ico scrap">⚙</span><b id="resScrap">0</b><small>PHẾ LIỆU</small></div>
+          <div class="res" title="Gỗ"><span class="res-ico wood">▤</span><b id="resWood">0</b><small>GỖ</small></div>
+          <div class="res" title="Lương thực"><span class="res-ico food">◒</span><b id="resFood">0</b><small>LƯƠNG</small></div>
+          <div class="res" title="Linh kiện"><span class="res-ico parts">✦</span><b id="resParts">0</b><small>LINH KIỆN</small></div>
+        </div>
+        <div class="minimap-wrap panel-cut">
+          <div class="minimap-head"><span>BẢN ĐỒ KHU VỰC</span><span id="mapCoords">2100 : 2100</span></div>
+          <canvas id="minimap" width="220" height="220"></canvas>
+          <div class="minimap-legend"><span class="lg player"></span>BẠN <span class="lg enemy"></span>DỊ BIẾN <span class="lg loot"></span>VẬT TƯ</div>
+        </div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="weapon-dock" id="weaponDock"></div>
+        <div class="ability-row">
+          <button class="ability" id="abilityHeal" title="Hồi máu (Q)"><span>✚</span><small>MÁU x2</small></button>
+          <button class="ability" id="abilityDash" title="Lướt né (Space)"><span>»</span><small>LƯỚT</small><i class="cd" id="dashCd"></i></button>
+          <button class="ability" id="abilityReload" title="Nạp đạn (R)"><span>⟳</span><small>NẠP</small></button>
+          <button class="ability" id="abilityBuild" title="Xây dựng (B)"><span>▦</span><small>XÂY</small></button>
+          <button class="ability" id="abilityHub" title="Trung tâm chỉ huy (H)"><span>⌂</span><small>CĂN CỨ</small></button>
+        </div>
+        <div class="key-hints" id="keyHints">
+          <span><kbd>WASD</kbd> di chuyển</span>
+          <span><kbd>CHUỘT</kbd> ngắm / bắn</span>
+          <span><kbd>R</kbd> nạp đạn</span>
+          <span><kbd>E</kbd> tương tác</span>
+          <span><kbd>B</kbd> xây dựng</span>
+          <span><kbd>H</kbd> căn cứ</span>
+        </div>
+      </div>
+
+      <div id="interactPrompt" class="hidden"><kbd>E</kbd><span id="interactText">TƯƠNG TÁC</span></div>
+      <div id="toasts"></div>
+      <div id="banner" class="hidden"><small></small><strong></strong><em></em></div>
+      <div id="crosshair"><i></i><i></i><i></i><i></i><b></b></div>
+      <div id="damageFlash"></div>
+      <div id="lowHealth"></div>
+      <div class="status-tags" id="statusTags"></div>
+      <button id="pauseBtn" class="icon-btn pause-btn" title="Tạm dừng">Ⅱ</button>
+    </section>
+
+    <!-- ================= MOBILE CONTROLS ================= -->
+    <div id="mobileControls" class="hidden">
+      <div class="joystick-zone" id="moveZone">
+        <div class="joystick" id="moveStick"><div class="stick-ring"></div><div class="stick-knob"></div><span class="stick-label">DI CHUYỂN</span></div>
+      </div>
+      <div class="joystick-zone aim" id="aimZone">
+        <div class="joystick" id="aimStick"><div class="stick-ring"></div><div class="stick-knob"></div><span class="stick-label">NGẮM</span></div>
+      </div>
+      <div class="mobile-actions">
+        <button class="mob-btn fire" id="btnFire"><span>✦</span>BẮN</button>
+        <button class="mob-btn" id="btnReload"><span>⟳</span>NẠP</button>
+        <button class="mob-btn" id="btnDash"><span>»</span>LƯỚT</button>
+        <button class="mob-btn weapon" id="btnWeapon"><span>⇄</span><small id="mobWeapon">ĐỔI SÚNG</small></button>
+        <button class="mob-btn" id="btnInteract"><span>E</span>TƯƠNG TÁC</button>
+        <button class="mob-btn" id="btnBuild"><span>▦</span>XÂY</button>
+        <button class="mob-btn" id="btnHeal"><span>✚</span>HỒI MÁU</button>
+        <button class="mob-btn" id="btnHub"><span>⌂</span>CĂN CỨ</button>
+      </div>
+    </div>
+
+    <!-- ================= BUILD BAR ================= -->
+    <div id="buildBar" class="hidden">
+      <div class="build-head">
+        <div><span class="eyebrow-sm">CHẾ ĐỘ XÂY DỰNG</span><strong>PHÒNG TUYẾN CĂN CỨ</strong></div>
+        <div class="build-hint"><kbd>1-4</kbd> chọn <kbd>R</kbd> xoay <kbd>CHUỘT TRÁI</kbd> đặt <kbd>ESC</kbd> thoát</div>
+        <button class="close-x" id="buildClose">✕</button>
+      </div>
+      <div class="build-items" id="buildItems"></div>
+    </div>
+
+    <!-- ================= PANEL (HUB / QUESTS / PAUSE) ================= -->
+    <section id="panel" class="screen hidden">
+      <div class="panel-box">
+        <header class="panel-head">
+          <div class="panel-title"><span id="panelKicker">TRUNG TÂM CHỈ HUY</span><h2 id="panelTitle">CĂN CỨ TRẠM 07</h2></div>
+          <div class="panel-res" id="panelRes"></div>
+          <button class="close-x" id="panelClose">✕</button>
+        </header>
+        <nav class="panel-tabs" id="panelTabs"></nav>
+        <div class="panel-body" id="panelBody"></div>
+        <footer class="panel-foot"><span id="panelFoot">Trạm 07 · Khu cách ly phía Đông</span><span class="esc-hint"><kbd>ESC</kbd> ĐÓNG</span></footer>
+      </div>
+    </section>
+
+    <!-- ================= PAUSE ================= -->
+    <section id="pauseScreen" class="screen hidden">
+      <div class="modal pause-box">
+        <div class="modal-kicker">TẠM DỪNG</div>
+        <h1>GIỮ HƠI THỞ</h1>
+        <p>Khu vực này vẫn chưa an toàn. Mọi thứ đang chờ bạn quay lại.</p>
+        <div class="pause-stats" id="pauseStats"></div>
+        <div class="pause-actions">
+          <button class="btn btn-primary" id="btnResume">TIẾP TỤC</button>
+          <button class="btn btn-ghost" id="btnPauseGuide">HƯỚNG DẪN</button>
+          <button class="btn btn-danger" id="btnQuit">BỎ CUỘC</button>
+        </div>
+        <div class="pause-tip">MẸO: ban đêm, dị biến sẽ tấn công căn cứ theo từng đợt. Hãy xây tháp súng trước khi trời tối.</div>
+      </div>
+    </section>
+
+    <!-- ================= DEATH ================= -->
+    <section id="deathScreen" class="screen hidden">
+      <div class="death-wrap">
+        <div class="modal-kicker death-kicker">TÍN HIỆU ĐÃ MẤT</div>
+        <h1>BẠN ĐÃ GỤC NGÃ</h1>
+        <p class="death-sub">Vùng đất này đã nuốt chửng thêm một người nữa. Nhưng trạm 07 vẫn cần bạn.</p>
+        <div class="death-stats" id="deathStats"></div>
+        <div class="death-actions">
+          <button class="btn btn-primary" id="btnRetry">THỬ LẠI TỪ ĐẦU</button>
+          <button class="btn btn-ghost" id="btnDeathMenu">VỀ MÀN HÌNH CHÍNH</button>
+        </div>
+        <div class="death-epitaph" id="deathEpitaph">"Không ai chết một mình trong vùng đất chết."</div>
+      </div>
+    </section>
+
+    <!-- ================= GUIDE ================= -->
+    <section id="guideScreen" class="screen hidden">
+      <div class="modal guide-box">
+        <header>
+          <div class="modal-kicker">SỔ TAY SINH TỒN</div>
+          <h1>NHỮNG ĐIỀU CẦN NHỚ</h1>
+          <button class="close-x" id="guideClose">✕</button>
+        </header>
+        <div class="guide-grid">
+          <div class="guide-col">
+            <h3><span>01</span> DI CHUYỂN &amp; CHIẾN ĐẤU</h3>
+            <ul>
+              <li><kbd>W A S D</kbd> hoặc phím mũi tên để di chuyển. <kbd>SHIFT</kbd> để chạy nhanh.</li>
+              <li>Giữ <kbd>CHUỘT TRÁI</kbd> để bắn theo hướng ngắm. Phím <kbd>1-4</kbd> đổi vũ khí.</li>
+              <li><kbd>R</kbd> nạp đạn, <kbd>SPACE</kbd> lướt né. Lướt giúp thoát khỏi vòng vây.</li>
+              <li>Trên điện thoại: dùng cần trái để di chuyển, cần phải để ngắm, nút <b>BẮN</b> để khai hỏa.</li>
+            </ul>
+          </div>
+          <div class="guide-col">
+            <h3><span>02</span> KHÁM PHÁ &amp; THU THẬP</h3>
+            <ul>
+              <li>Lại gần thùng gỗ, xác xe hoặc hòm tiếp tế và nhấn <kbd>E</kbd> để thu thập.</li>
+              <li>Phế liệu, gỗ, lương thực và linh kiện dùng để xây dựng, chiêu mộ và nâng cấp.</li>
+              <li>Càng xa căn cứ, vật tư càng quý — nhưng dị biến cũng nguy hiểm hơn.</li>
+              <li>Thùng vũ khí màu cam chứa súng mới. Đừng bỏ lỡ chúng.</li>
+            </ul>
+          </div>
+          <div class="guide-col">
+            <h3><span>03</span> CĂN CỨ &amp; PHÒNG THỦ</h3>
+            <ul>
+              <li>Nhấn <kbd>B</kbd> mở chế độ xây dựng: tường, rào chắn, tháp súng, trạm y tế.</li>
+              <li>Nhấn <kbd>H</kbd> hoặc <kbd>E</kbd> tại bàn chỉ huy để chiêu mộ lính, nâng cấp súng và tiếp tế.</li>
+              <li>Tháp súng tự động bắn. Tường chắn đường dị biến, nhưng chúng sẽ phá tường.</li>
+              <li>Lửa trại hồi máu và có thể giúp bạn nghỉ qua đêm.</li>
+            </ul>
+          </div>
+          <div class="guide-col">
+            <h3><span>04</span> NGÀY ĐÊM &amp; TIẾN TRÌNH</h3>
+            <ul>
+              <li>Ban ngày dị biến rải rác. Ban đêm chúng tấn công căn cứ theo đợt, mỗi đêm một mạnh hơn.</li>
+              <li>Hoàn thành nhiệm vụ để nhận XP, phế liệu và linh kiện. Lên cấp tăng máu tối đa.</li>
+              <li>Nâng cấp vũ khí tại căn cứ để tăng sát thương và tốc độ nạp.</li>
+              <li>Mỗi 5 đêm, một con quái vật chúa sẽ xuất hiện. Chuẩn bị thật kỹ.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="guide-foot">
+          <div class="guide-tip"><span>!</span> Bạn có thể mở lại sổ tay này từ menu tạm dừng bất cứ lúc nào.</div>
+          <button class="btn btn-primary" id="guideDone">ĐÃ HIỂU</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="screenFade"></div>
+  </div>
+
+  <script src="data.js?v=6"></script>
+  <script src="audio.js?v=6"></script>
+  <script src="world.js?v=6"></script>
+  <script src="entities.js?v=6"></script>
+  <script src="ui.js?v=6"></script>
+  <script src="game.js?v=6"></script>
+  <script src="game-render.js?v=6"></script>
+  <script src="game-combat.js?v=6"></script>
+  <script src="game-system.js?v=6"></script>
+  <script>
+    window.addEventListener('load', function () {
+      if (!window.GAME) window.GAME = new TT.Game();
+    });
+  </script>
+</body>
+</html>
