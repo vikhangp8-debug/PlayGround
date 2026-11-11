@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0c0f0c" />
+  <meta name="description" content="TÀN TRO — Game sinh tồn 2D góc nhìn từ trên xuống: bắn quái biến dị, lùng sục phế tích, xây dựng căn cứ và sống sót qua những đêm dài." />
+  <title>TÀN TRO — Sinh tồn vùng đất chết</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c0f0c'/%3E%3Cpath d='M32 7l5 19h13L40 36l8 21-16-9-16 9 8-21L14 26h13z' fill='%23e8b25c'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="assets/fonts/fonts.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" aria-label="Màn chơi sinh tồn Tàn Tro"></canvas>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <section id="hud" class="hidden" aria-label="Giao diện trò chơi">
+      <header class="hud-top">
+        <div class="brand">
+          <div class="brand-mark">T</div>
+          <div class="brand-text">
+            <strong>TÀN TRO</strong>
+            <span>VÙNG ĐẤT CHẾT</span>
+          </div>
+        </div>
+
+        <div class="timebox">
+          <div class="time-main">
+            <span id="clockLabel">09:50</span>
+            <span id="dayLabel">NGÀY 1</span>
+          </div>
+          <div class="time-sub">
+            <span id="phaseLabel">BAN NGÀY</span>
+            <div class="phase-track"><i id="phaseFill"></i></div>
+          </div>
+        </div>
+
+        <div class="hud-actions">
+          <div id="nightChip" class="wave-chip">
+            <span class="wave-dot"></span>
+            <span id="waveLabel">TRƯỚC ĐÊM ĐẦU</span>
+            <b id="waveValue"></b>
+          </div>
+          <button class="icon-btn" data-action="quests" title="Nhiệm vụ (J)" aria-label="Nhiệm vụ">
+            <svg viewBox="0 0 24 24"><path d="M5 4h14M5 9h14M5 14h9M5 19h6" /></svg>
+          </button>
+          <button class="icon-btn" data-action="help" title="Hướng dẫn" aria-label="Hướng dẫn">
+            <span class="qmark">?</span>
+          </button>
+          <button class="icon-btn" data-action="pause" title="Tạm dừng (Esc)" aria-label="Tạm dừng">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></svg>
+          </button>
+          <button class="icon-btn" data-action="sound" title="Âm thanh" aria-label="Bật tắt âm thanh" id="soundBtn">
+            <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zM17 8a6 6 0 0 1 0 8" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <aside class="hud-left">
+        <div class="vitals panel">
+          <div class="vital-head">
+            <div class="avatar">
+              <svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM5 21v-2a7 7 0 0 1 14 0v2" /></svg>
+            </div>
+            <div class="vital-meta">
+              <div class="player-name">NGƯỜI SỐNG SÓT <b id="levelLabel">CẤP 1</b></div>
+              <div class="hp-line">
+                <div class="bar hp"><i id="hpFill"></i><span id="hpText">100 / 100</span></div>
+              </div>
+              <div class="mini-bars">
+                <div class="bar stamina"><i id="staminaFill"></i></div>
+                <div class="bar xp"><i id="xpFill"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="vital-foot">
+            <span><i class="dot stamina-dot"></i>THỂ LỰC</span>
+            <span><i class="dot xp-dot"></i><b id="xpText">0 XP</b></span>
+            <button class="medkit-btn" data-action="heal" title="Dùng bộ sơ cứu (H)">
+              <svg viewBox="0 0 24 24"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" /></svg>
+              <b id="medkitCount">1</b>
+            </button>
+          </div>
+        </div>
+
+        <div class="resource-row">
+          <div class="res" title="Gỗ — dùng để xây tường, trạm y tế">
+            <svg viewBox="0 0 24 24" class="res-wood"><path d="M4 8h13a3 3 0 1 1 0 6H7a3 3 0 0 1-3-3V8zM4 14h13a3 3 0 0 1 0 6H7a3 3 0 0 1-3-3v-3z" /></svg>
+            <span>Gỗ</span><b id="woodCount">0</b>
+          </div>
+          <div class="res" title="Sắt — vật liệu chính để chế tạo">
+            <svg viewBox="0 0 24 24" class="res-scrap"><path d="M12 2l3 4 5 1-2 5 2 5-5 1-3 4-3-4-5-1 2-5-2-5 5-1 3-4z" /></svg>
+            <span>Sắt</span><b id="scrapCount">0</b>
+          </div>
+          <div class="res" title="Linh kiện — dùng cho tháp súng và nâng cấp">
+            <svg viewBox="0 0 24 24" class="res-parts"><path d="M7 7h10v10H7zM9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" /></svg>
+            <span>Linh kiện</span><b id="partsCount">0</b>
+          </div>
+        </div>
+
+        <div class="mobile-weapon" id="mobileWeapon">
+          <span class="mw-label">VŨ KHÍ</span>
+          <b id="mwName">Súng lục</b>
+          <span id="mwAmmo">12 / 60</span>
+          <button class="mw-switch" data-action="cycle" aria-label="Đổi vũ khí">ĐỔI</button>
+        </div>
+
+        <div class="quest-tracker" id="questTracker" aria-label="Nhiệm vụ đang làm">
+          <div class="qt-head"><span>NHIỆM VỤ</span><button data-action="quests">XEM TẤT CẢ</button></div>
+          <div id="questList"></div>
+        </div>
+      </aside>
+
+      <div class="minimap-wrap">
+        <div class="minimap-frame">
+          <canvas id="minimap" width="320" height="320"></canvas>
+          <div class="minimap-compass">B</div>
+          <div class="minimap-corner tl"></div><div class="minimap-corner tr"></div>
+          <div class="minimap-corner bl"></div><div class="minimap-corner br"></div>
+        </div>
+        <div class="minimap-caption"><span>KHU VỰC</span><b id="minimapThreat">YÊN TĨNH</b></div>
+      </div>
+
+      <div id="bossBar" class="boss-bar hidden">
+        <div class="boss-head"><span>QUÁI VẬT CHÚA</span><b id="bossHpText">100%</b></div>
+        <div class="boss-track"><i id="bossFill"></i></div>
+      </div>
+
+      <div id="prompt" class="prompt hidden">
+        <kbd>E</kbd>
+        <span id="promptText">Mở thùng tiếp tế</span>
+      </div>
+
+      <div id="toastLayer" class="toast-layer" aria-live="polite"></div>
+      <div id="bannerLayer" class="banner-layer" aria-live="polite"></div>
+
+      <div class="stick-zone stick-left">
+        <div id="moveStick" class="stick">
+          <div class="stick-ring"></div>
+          <div class="stick-cross"></div>
+          <div class="stick-thumb"></div>
+          <span class="stick-hint">DI CHUYỂN</span>
+        </div>
+      </div>
+      <div class="stick-zone stick-right">
+        <div id="aimStick" class="stick aim">
+          <div class="stick-ring"></div>
+          <div class="stick-cross"></div>
+          <div class="stick-thumb"></div>
+          <span class="stick-hint">NGẮM / BẮN</span>
+        </div>
+      </div>
+
+      <div class="mobile-rail">
+        <button class="round-btn" data-action="interact" id="interactBtn">MỞ</button>
+        <button class="round-btn" data-action="cycle" title="Đổi vũ khí">ĐỔI</button>
+        <button class="round-btn" data-action="melee" title="Chém cận chiến">CHÉM</button>
+        <button class="round-btn" data-action="reload" title="Nạp đạn">NẠP</button>
+        <button class="round-btn" data-action="heal" title="Sơ cứu" id="mobileHealBtn">SƠ CỨU</button>
+        <button class="round-btn accent" data-action="build" title="Xây dựng">XÂY</button>
+      </div>
+
+      <div class="hotbar-wrap">
+        <div id="hotbar" class="hotbar"></div>
+        <div class="hotbar-hint">1–5 đổi vũ khí · R nạp đạn · Q chém · E nhặt · B xây · U nâng cấp · J nhiệm vụ</div>
+      </div>
+
+      <div class="build-float hidden" id="buildFloat">
+        <div class="bf-left">
+          <span>ĐANG XÂY</span>
+          <b id="buildFloatName">Tường chắn</b>
+          <em id="buildFloatCost">12 gỗ · 8 sắt</em>
+        </div>
+        <div class="bf-actions">
+          <button class="btn tiny ghost" data-action="build-close">HỦY (B)</button>
+          <button class="btn tiny primary" data-action="build-place">ĐẶT</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== BUILD MENU ===================== -->
+    <div id="buildMenu" class="menu-layer hidden" role="dialog" aria-label="Xây dựng căn cứ">
+      <div class="build-panel panel">
+        <header class="panel-head">
+          <div>
+            <div class="eyebrow">PHÒNG THỦ &amp; PHÁT TRIỂN</div>
+            <h2>XÂY DỰNG CĂN CỨ</h2>
+            <p>Chọn công trình, di chuyển để đặt vị trí. Công trình chỉ được xây trong vòng bảo vệ.</p>
+          </div>
+          <button class="close-btn" data-action="build-close" aria-label="Đóng">✕</button>
+        </header>
+        <div class="build-grid" id="buildGrid"></div>
+        <div class="base-actions" id="baseActions"></div>
+        <footer class="build-foot">
+          <div class="ghost-state" id="buildGhostState"><span></span></div>
+          <div class="build-buttons">
+            <button class="btn ghost" data-action="build-close">ĐÓNG (B)</button>
+            <button class="btn primary" data-action="build-place">ĐẶT CÔNG TRÌNH</button>
+          </div>
+        </footer>
+        <div class="build-tip">MẸO: Tường chắn hút đòn của quái. Tháp súng bắn tự động trong bán kính 430.</div>
+      </div>
+    </div>
+
+    <!-- ===================== UPGRADE MENU ===================== -->
+    <div id="upgradeMenu" class="menu-layer hidden" role="dialog" aria-label="Nâng cấp vũ khí">
+      <div class="upgrade-panel panel">
+        <header class="panel-head">
+          <div>
+            <div class="eyebrow">BÀN CHẾ TẠO</div>
+            <h2>NÂNG CẤP VŨ KHÍ</h2>
+            <p>Dùng <b>linh kiện</b> và <b>sắt</b> để tăng sát thương, băng đạn và tốc độ nạp.</p>
+          </div>
+          <button class="close-btn" data-action="close-menu" aria-label="Đóng">✕</button>
+        </header>
+        <div class="weapon-upgrade-list" id="weaponUpgradeList"></div>
+        <div class="buy-row">
+          <div><b>Bộ sơ cứu</b><span>Hồi 45 máu. Vật phẩm sống còn.</span></div>
+          <button class="btn" data-action="buy-medkit">MUA · 15 SẮT</button>
+        </div>
+        <footer class="panel-foot">
+          <span class="muted">Cần đứng gần bàn chế tạo để nâng cấp.</span>
+          <button class="btn primary" data-action="close-menu">XONG</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ===================== QUESTS MENU ===================== -->
+    <div id="questMenu" class="menu-layer hidden" role="dialog" aria-label="Nhiệm vụ">
+      <div class="quest-panel panel">
+        <header class="panel-head">
+          <div>
+            <div class="eyebrow">NHẬT KÝ SINH TỒN</div>
+            <h2>NHIỆM VỤ</h2>
+            <p>Hoàn thành nhiệm vụ để nhận phế liệu, linh kiện và kinh nghiệm.</p>
+          </div>
+          <button class="close-btn" data-action="close-menu" aria-label="Đóng">✕</button>
+        </header>
+        <div class="quest-full-list" id="questFullList"></div>
+        <footer class="panel-foot">
+          <span class="muted" id="questStatLine"></span>
+          <button class="btn primary" data-action="close-menu">TIẾP TỤC</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ===================== PAUSE ===================== -->
+    <div id="pauseMenu" class="menu-layer hidden" role="dialog" aria-label="Tạm dừng">
+      <div class="pause-panel panel">
+        <div class="eyebrow">TẠM DỪNG</div>
+        <h2>THỞ MỘT CHÚT</h2>
+        <p class="pause-sub">Thời gian đã dừng. Bầy biến dị vẫn đang chờ ngoài kia.</p>
+        <div class="pause-grid">
+          <button class="btn primary wide" data-action="resume">TIẾP TỤC</button>
+          <button class="btn wide" data-action="help">HƯỚNG DẪN</button>
+          <button class="btn wide" data-action="open-upgrade">NÂNG CẤP VŨ KHÍ</button>
+          <button class="btn wide" data-action="restart-run">CHƠI LẠI TỪ ĐẦU</button>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle"><input type="checkbox" id="toggleSound" data-toggle="sound" /><span></span>Âm thanh</label>
+          <label class="toggle"><input type="checkbox" id="toggleAssist" data-toggle="assist" /><span></span>Hỗ trợ ngắm</label>
+        </div>
+        <div class="pause-stats" id="pauseStats"></div>
+        <footer class="panel-foot">
+          <button class="btn ghost small" data-action="quit-title">VỀ MÀN HÌNH CHÍNH</button>
+          <button class="btn ghost small danger" data-action="wipe-save">XOÁ TIẾN TRÌNH</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ===================== HELP ===================== -->
+    <div id="helpMenu" class="menu-layer hidden" role="dialog" aria-label="Hướng dẫn">
+      <div class="help-panel panel">
+        <header class="panel-head">
+          <div>
+            <div class="eyebrow">SỔ TAY SINH TỒN</div>
+            <h2>HƯỚNG DẪN</h2>
+          </div>
+          <button class="close-btn" data-action="close-help" aria-label="Đóng">✕</button>
+        </header>
+        <div class="help-body">
+          <div class="help-col">
+            <h3>ĐIỀU KHIỂN</h3>
+            <ul class="key-list">
+              <li><kbd>WASD</kbd><span>Di chuyển</span></li>
+              <li><kbd>Chuột</kbd><span>Ngắm &amp; bắn</span></li>
+              <li><kbd>Space</kbd><span>Bắn (bàn phím)</span></li>
+              <li><kbd>Shift</kbd><span>Chạy nước rút</span></li>
+              <li><kbd>R</kbd><span>Nạp đạn</span></li>
+              <li><kbd>Q</kbd><span>Chém cận chiến</span></li>
+              <li><kbd>H</kbd><span>Dùng sơ cứu</span></li>
+              <li><kbd>E</kbd><span>Mở thùng / tương tác</span></li>
+              <li><kbd>B</kbd><span>Xây dựng (tại căn cứ)</span></li>
+              <li><kbd>U</kbd><span>Nâng cấp (bàn chế tạo)</span></li>
+              <li><kbd>J</kbd><span>Nhật ký nhiệm vụ</span></li>
+              <li><kbd>Esc</kbd><span>Tạm dừng</span></li>
+            </ul>
+            <p class="touch-note">Trên điện thoại: cần trái di chuyển, cần phải ngắm và tự động bắn. Các nút thao tác nằm bên phải màn hình.</p>
+          </div>
+          <div class="help-col">
+            <h3>VÒNG LẶP SINH TỒN</h3>
+            <div class="help-steps">
+              <div><b>01</b><p><strong>Ban ngày</strong> — Lùng sục thùng tiếp tế, nhặt vũ khí, đạn và vật liệu. Quay về căn cứ trước khi trời tối.</p></div>
+              <div><b>02</b><p><strong>Hoàng hôn</strong> — Xây tường, tháp súng, trạm y tế. Chiêu mộ lính và nâng cấp vũ khí.</p></div>
+              <div><b>03</b><p><strong>Ban đêm</strong> — Bầy biến dị tràn về. Sống sót đến bình minh để nhận thưởng lớn.</p></div>
+              <div><b>04</b><p><strong>Mỗi đêm</strong> quái đông và khỏe hơn. Đêm thứ 3, 6, 9… Quái vật chúa sẽ xuất hiện.</p></div>
+            </div>
+            <h3>MẸO SỐNG CÒN</h3>
+            <ul class="tip-list">
+              <li>Ưu tiên nâng cấp súng lục và mua sơ cứu trước đêm thứ hai.</li>
+              <li>Thùng phuy đỏ phát nổ khi trúng đạn — dẫn quái lại gần rồi bắn.</li>
+              <li>Lính và tháp súng chỉ bảo vệ được khi bạn ở gần căn cứ.</li>
+              <li>Thùng tiếp tế màu xanh lá chứa vũ khí hiếm. Theo cột sáng mà tìm.</li>
+            </ul>
+          </div>
+        </div>
+        <footer class="panel-foot">
+          <span class="muted">Chơi bằng chuột + bàn phím hoặc cảm ứng hai cần.</span>
+          <button class="btn primary" data-action="close-help">ĐÃ HIỂU</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ===================== DEATH / GAME OVER ===================== -->
+    <div id="deathScreen" class="menu-layer hidden" role="dialog" aria-label="Bạn đã gục ngã">
+      <div class="death-panel panel">
+        <div class="eyebrow danger-text" id="deathEyebrow">BẠN ĐÃ GỤC NGÃ</div>
+        <h2 id="deathTitle">MÀN ĐÊM NUỐT CHỬNG BẠN</h2>
+        <p id="deathSub">Căn cứ vẫn đứng vững. Hãy trở về, băng bó và tiếp tục chiến đấu.</p>
+        <div class="death-stats" id="deathStats"></div>
+        <div class="death-actions" id="deathActions">
+          <button class="btn primary xl" data-action="respawn">HỒI SINH TẠI CĂN CỨ</button>
+          <button class="btn ghost" data-action="restart-run">CHƠI LẠI TỪ ĐẦU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TITLE ===================== -->
+    <div id="titleScreen" class="title-screen" role="dialog" aria-label="Màn hình chính">
+      <div class="title-inner">
+        <div class="title-eyebrow"><span class="live-dot"></span>SINH TỒN THỜI GIAN THỰC · 2D TOP-DOWN</div>
+        <h1 class="logo">TÀN <em>TRO</em></h1>
+        <div class="logo-sub"><span></span>VÙNG ĐẤT CHẾT<span></span></div>
+        <p class="lede">Bạn là người sống sót cuối cùng quanh một căn cứ hoang. Ban ngày, lùng sục phế tích để tìm vũ khí và vật liệu. Ban đêm, chống lại bầy biến dị đang khát máu — mỗi đêm chúng lại đông và hung tợn hơn.</p>
+        <div class="title-actions">
+          <button class="btn primary xl" data-action="start-new" id="startBtn">BẮT ĐẦU SINH TỒN</button>
+          <button class="btn xl hidden" data-action="continue" id="continueBtn">CHƠI TIẾP</button>
+          <button class="btn ghost" data-action="help">HƯỚNG DẪN</button>
+        </div>
+        <div class="save-summary hidden" id="saveSummary"></div>
+        <div class="feature-row">
+          <div class="feature"><b>01</b><span>Chiến đấu thời gian thực</span><em>Súng, cận chiến, nổ</em></div>
+          <div class="feature"><b>02</b><span>Lùng sục phế tích</span><em>Vũ khí · đạn · vật liệu</em></div>
+          <div class="feature"><b>03</b><span>Xây dựng căn cứ</span><em>Lính · tháp súng · tường</em></div>
+          <div class="feature"><b>04</b><span>Chu kỳ ngày đêm</span><em>Đêm càng dài, quái càng mạnh</em></div>
+        </div>
+        <div class="title-foot">
+          <div class="controls-hint" id="titleControls">WASD di chuyển · Chuột ngắm &amp; bắn · B xây dựng · E nhặt đồ · J nhiệm vụ</div>
+          <div class="tip-line">“Đừng để mặt trời lặn khi còn cách căn cứ nửa bản đồ.”</div>
+        </div>
+      </div>
+      <div class="title-version">TÀN TRO v1.0 · SINH TỒN VÔ TẬN</div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
